@@ -1,0 +1,32 @@
+{
+  "version": "SELECT @@VERSION",
+  "server_name": "SELECT @@SERVERNAME",
+  "instance_name": "SELECT SERVERPROPERTY('InstanceName')",
+  "edition": "SELECT SERVERPROPERTY('Edition')",
+  "product_version": "SELECT SERVERPROPERTY('ProductVersion')",
+  "collation": "SELECT SERVERPROPERTY('Collation')",
+  "build_number": "SELECT SERVERPROPERTY('BuildClrVersion')",
+
+  "memory_total": "SELECT physical_memory_kb / 1024.0 as memory_total_mb FROM sys.dm_os_sys_info",
+  "max_memory": "SELECT CAST(c.value AS INT) as max_memory_mb FROM sys.configurations c WHERE c.name = 'max server memory (MB)'",
+  "cpu_count": "SELECT cpu_count FROM sys.dm_os_sys_info",
+
+  "databases": "SELECT name, database_id, create_date, CAST((size * 8) / 1024.0 AS FLOAT) as size_mb, state_desc, recovery_model_desc, collation_name FROM sys.databases ORDER BY name",
+
+  "databases_growth": "WITH DBGrowth AS (SELECT database_id, CAST(SUM(size) * 8 / 1024.0 AS FLOAT) as total_size_mb FROM sys.master_files GROUP BY database_id) SELECT d.name, dg.total_size_mb FROM sys.databases d LEFT JOIN DBGrowth dg ON d.database_id = dg.database_id ORDER BY d.name",
+
+  "users_sysadmin": "SELECT DISTINCT sp.name FROM sys.server_principals sp INNER JOIN sys.server_role_members srm ON sp.principal_id = srm.member_principal_id INNER JOIN sys.server_principals sr ON srm.role_principal_id = sr.principal_id WHERE sr.name = 'sysadmin' AND sp.type IN ('S', 'U', 'G')",
+
+  "failed_jobs": "SELECT j.name as job_name, j.job_id, CASE WHEN jh.run_status = 0 THEN 'Failed' WHEN jh.run_status = 1 THEN 'Succeeded' WHEN jh.run_status = 3 THEN 'Cancelled' ELSE 'Unknown' END as last_status, jh.run_date, jh.run_duration FROM msdb.dbo.sysjobs j LEFT JOIN msdb.dbo.sysjobhistory jh ON j.job_id = jh.job_id WHERE j.enabled = 1 AND jh.run_status = 0 ORDER BY j.name",
+
+  "backups": "SELECT TOP 100 bs.database_name, bs.backup_type, bs.backup_start_date, bs.backup_finish_date, CAST(bs.backup_size / 1024 / 1024 AS FLOAT) as backup_size_mb FROM msdb.dbo.backupset bs ORDER BY bs.backup_finish_date DESC",
+
+  "services": "SELECT servicename, status, startup_type FROM master.dbo.xp_servicecontrol('querystate', 'MSSQLServer')",
+
+  "top_queries": "SELECT TOP 10 qs.query_hash, SUBSTRING(ST.text, (QS.statement_start_offset/2)+1, ((CASE WHEN QS.statement_end_offset = -1 THEN DATALENGTH(ST.text) ELSE QS.statement_end_offset END - QS.statement_start_offset)/2)+1) AS statement_text, qs.execution_count, CAST(qs.total_elapsed_time / 1000000.0 AS FLOAT) as total_elapsed_time_sec FROM sys.dm_exec_query_stats qs CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) ST ORDER BY qs.total_elapsed_time DESC",
+
+  "tables_by_size": "WITH TableSize AS (SELECT OBJECT_SCHEMA_NAME(i.object_id) as schema_name, OBJECT_NAME(i.object_id) as table_name, SUM(s.in_row_data_page_count + s.lob_used_page_count + s.row_overflow_used_page_count) as total_pages FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') s INNER JOIN sys.indexes i ON s.object_id = i.object_id AND s.index_id = i.index_id WHERE database_id = DB_ID() AND OBJECTPROPERTY(i.object_id, 'IsUserTable') = 1 GROUP BY i.object_id) SELECT TOP 20 schema_name, table_name, CAST(total_pages * 8 / 1024.0 AS FLOAT) as size_mb FROM TableSize ORDER BY total_pages DESC",
+
+  "disk_space": "EXEC xp_fixeddrives"
+}
+

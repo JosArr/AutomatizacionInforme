@@ -1,0 +1,22 @@
+[
+  {
+    "server": "172.16.4.166",
+    "instance": "SACVDB",
+    "port": 1433,
+    "auth_type": "sql",
+    "username": "sa",
+    "timeout": 30,
+    "retries": 3,
+    "tags": ["producción", "cliente_a"]
+  },
+  {
+    "server": "172.25.91.69",
+    "instance": "MSSQLSERVER",
+    "port": 1433,
+    "auth_type": "windows",
+    "timeout": 30,
+    "retries": 3,
+    "tags": ["producción", "cliente_b"]
+  }
+]
+

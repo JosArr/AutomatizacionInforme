@@ -1,0 +1,65 @@
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+.Python
+*.egg-info/
+.eggs/
+
+build/
+dist/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# IDEs / Editors
+# =========================
+.idea/
+.vscode/
+
+*.swp
+*.swo
+*~
+
+# =========================
+# Outputs
+# =========================
+output/
+template_extracted/
+
+# =========================
+# Credentials / Secrets
+# =========================
+credentials.json
+secrets/
+*.pem
+*.key
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Temporary / Cache
+# =========================
+*.tmp
+*.temp
+.cache/
